@@ -221,9 +221,10 @@ function ProfileCard() {
   )
 }
 
-function SwitchMenuItems({
+export function SwitchMenuItems({
   accounts,
   signOutPromptControl,
+  showExtraButtons
 }: {
   accounts:
     | {
@@ -232,10 +233,13 @@ function SwitchMenuItems({
       }[]
     | undefined
   signOutPromptControl: DialogControlProps
+  showExtraButtons?: boolean
 }) {
   const {_} = useLingui()
   const {setShowLoggedOut} = useLoggedOutViewControls()
   const closeEverything = useCloseAllActiveElements()
+
+  showExtraButtons = showExtraButtons ?? true;
 
   const onAddAnotherAccount = () => {
     setShowLoggedOut(true)
@@ -261,7 +265,7 @@ function SwitchMenuItems({
           <Menu.Divider />
         </>
       )}
-      <SwitcherMenuProfileLink />
+      {showExtraButtons ? <SwitcherMenuProfileLink /> : undefined }
       <Menu.Item
         label={_(msg`Add another account`)}
         onPress={onAddAnotherAccount}>
@@ -270,12 +274,16 @@ function SwitchMenuItems({
           <Trans>Add another account</Trans>
         </Menu.ItemText>
       </Menu.Item>
-      <Menu.Item label={_(msg`Sign out`)} onPress={signOutPromptControl.open}>
-        <Menu.ItemIcon icon={LeaveIcon} />
-        <Menu.ItemText>
-          <Trans>Sign out</Trans>
-        </Menu.ItemText>
-      </Menu.Item>
+      {
+        showExtraButtons ? 
+          <Menu.Item label={_(msg`Sign out`)} onPress={signOutPromptControl.open}>
+            <Menu.ItemIcon icon={LeaveIcon} />
+            <Menu.ItemText>
+              <Trans>Sign out</Trans>
+            </Menu.ItemText>
+          </Menu.Item>
+          : undefined
+      }
     </Menu.Outer>
   )
 }

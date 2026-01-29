@@ -184,6 +184,9 @@ import {
 import {type TextInputRef} from './text-input/TextInput.types'
 import {getVideoMetadata} from './videos/pickVideo'
 import {clearThumbnailCache} from './videos/VideoTranscodeBackdrop'
+import * as Menu from '#/components/Menu'
+import {SwitchMenuItems} from "#/view/shell/desktop/LeftNav"
+import {useProfilesQuery} from '#/state/queries/profile'
 
 type CancelRef = {
   onPressCancel: () => void
@@ -1324,7 +1327,7 @@ let ComposerPost = React.memo(function ComposerPost({
   onError: (error: string) => void
   onPublish: (richtext: RichText) => void
 }) {
-  const {currentAccount} = useSession()
+  const {currentAccount, accounts} = useSession()
   const currentDid = currentAccount!.did
   const {_} = useLingui()
   const {data: currentProfile} = useProfileQuery({did: currentDid})
@@ -1337,6 +1340,7 @@ let ComposerPost = React.memo(function ComposerPost({
       : _(msg`Add another post`)
     : _(msg`Anything but skeet`)
   const discardPromptControl = Prompt.usePromptControl()
+  const signOutPromptControl = Prompt.usePromptControl()
 
   const enableSquareButtons = useEnableSquareButtons()
 
@@ -1395,6 +1399,19 @@ let ComposerPost = React.memo(function ComposerPost({
     [post.id, onSelectVideo, onImageAdd, _],
   )
 
+
+  const {isLoading, data} = useProfilesQuery({
+    handles: accounts.map(acc => acc.did),
+  })
+  const profiles = data?.profiles
+
+  const otherAccounts = accounts
+    .filter(acc => acc.did !== currentAccount!.did)
+    .map(account => ({
+      account,
+      profile: profiles?.find(p => p.did === account.did),
+    }))
+
   useHideKeyboardOnBackground()
 
   return (
@@ -1407,12 +1424,33 @@ let ComposerPost = React.memo(function ComposerPost({
         isTextOnly && isLastPost && IS_NATIVE && a.flex_grow,
       ]}>
       <View style={[a.flex_row, IS_NATIVE && a.flex_1]}>
-        <UserAvatar
-          avatar={currentProfile?.avatar}
-          size={42}
-          type={currentProfile?.associated?.labeler ? 'labeler' : 'user'}
-          style={[a.mt_xs]}
-        />
+	<Menu.Root>
+	  <Menu.Trigger label={_(msg`Switch accounts`)}>
+	    {({props}) => (
+	      <Button
+		label={props.accessibilityLabel}
+		{...props}
+		style={[
+		  a.transition_color,
+		  enableSquareButtons ? a.rounded_sm : a.rounded_full,
+                  a.self_start
+		]}>
+		<UserAvatar
+		  avatar={currentProfile?.avatar}
+		  size={42}
+		  type={currentProfile?.associated?.labeler ? 'labeler' : 'user'}
+		  style={[a.mt_xs]}
+		/>
+	      </Button>
+	    )}
+	  </Menu.Trigger>
+	  {
+	  <SwitchMenuItems
+	    accounts={otherAccounts}
+	    signOutPromptControl={signOutPromptControl}
+            showExtraButtons={false}
+	  />}
+	</Menu.Root>
         <TextInput
           ref={textInput}
           style={[a.pt_xs]}
@@ -2579,3 +2617,5 @@ function VideoUploadToolbar({state}: {state: VideoState}) {
     </ToolbarWrapper>
   )
 }
+
+
