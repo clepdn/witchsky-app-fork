@@ -224,7 +224,8 @@ function ProfileCard() {
 export function SwitchMenuItems({
   accounts,
   signOutPromptControl,
-  showExtraButtons
+  showExtraButtons,
+  onSelectAccount,
 }: {
   accounts:
     | {
@@ -234,12 +235,13 @@ export function SwitchMenuItems({
     | undefined
   signOutPromptControl: DialogControlProps
   showExtraButtons?: boolean
+  onSelectAccount?: (account: SessionAccount) => void
 }) {
   const {_} = useLingui()
   const {setShowLoggedOut} = useLoggedOutViewControls()
   const closeEverything = useCloseAllActiveElements()
 
-  showExtraButtons = showExtraButtons ?? true;
+  showExtraButtons = showExtraButtons ?? true
 
   const onAddAnotherAccount = () => {
     setShowLoggedOut(true)
@@ -259,13 +261,14 @@ export function SwitchMenuItems({
                 key={other.account.did}
                 account={other.account}
                 profile={other.profile}
+                onSelectAccount={onSelectAccount}
               />
             ))}
           </Menu.Group>
           <Menu.Divider />
         </>
       )}
-      {showExtraButtons ? <SwitcherMenuProfileLink /> : undefined }
+      {showExtraButtons ? <SwitcherMenuProfileLink /> : undefined}
       <Menu.Item
         label={_(msg`Add another account`)}
         onPress={onAddAnotherAccount}>
@@ -274,16 +277,14 @@ export function SwitchMenuItems({
           <Trans>Add another account</Trans>
         </Menu.ItemText>
       </Menu.Item>
-      {
-        showExtraButtons ? 
-          <Menu.Item label={_(msg`Sign out`)} onPress={signOutPromptControl.open}>
-            <Menu.ItemIcon icon={LeaveIcon} />
-            <Menu.ItemText>
-              <Trans>Sign out</Trans>
-            </Menu.ItemText>
-          </Menu.Item>
-          : undefined
-      }
+      {showExtraButtons ? (
+        <Menu.Item label={_(msg`Sign out`)} onPress={signOutPromptControl.open}>
+          <Menu.ItemIcon icon={LeaveIcon} />
+          <Menu.ItemText>
+            <Trans>Sign out</Trans>
+          </Menu.ItemText>
+        </Menu.Item>
+      ) : undefined}
     </Menu.Outer>
   )
 }
@@ -341,9 +342,11 @@ function SwitcherMenuProfileLink() {
 function SwitchMenuItem({
   account,
   profile,
+  onSelectAccount,
 }: {
   account: SessionAccount
   profile: AppBskyActorDefs.ProfileViewDetailed | undefined
+  onSelectAccount?: (account: SessionAccount) => void
 }) {
   const {_} = useLingui()
   const {onPressSwitchAccount, pendingDid} = useAccountSwitcher()
@@ -360,7 +363,13 @@ function SwitchMenuItem({
           '@',
         )}`,
       )}
-      onPress={() => onPressSwitchAccount(account, 'SwitchAccount')}>
+      onPress={() => {
+        if (onSelectAccount) {
+          onSelectAccount(account)
+        } else {
+          onPressSwitchAccount(account, 'SwitchAccount')
+        }
+      }}>
       <View>
         <UserAvatar
           avatar={profile?.avatar}

@@ -58,6 +58,9 @@ const ApiContext = createContext<SessionApiContext>({
   resumeSession: async () => {},
   removeAccount: () => {},
   partialRefreshSession: async () => {},
+  createEphemeralAgent: async () => {
+    throw new Error('Not implemented')
+  },
 })
 ApiContext.displayName = 'SessionApiContext'
 
@@ -290,6 +293,29 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     })
   }, [store, state, cancelPendingTask])
 
+  const createEphemeralAgent = React.useCallback<
+    SessionApiContext['createEphemeralAgent']
+  >(
+    async storedAccount => {
+      const {agent} = await createAgentAndResume(
+        storedAccount,
+        (ephemeralAgent, accountDid, sessionEvent) => {
+          const refreshedAccount = agentToSessionAccount(ephemeralAgent)
+
+          store.dispatch({
+            type: 'received-agent-event',
+            agent: ephemeralAgent as any,
+            refreshedAccount,
+            accountDid,
+            sessionEvent,
+          })
+        },
+      )
+      return agent
+    },
+    [store],
+  )
+
   const removeAccount = useCallback<SessionApiContext['removeAccount']>(
     account => {
       addSessionDebugLog({
@@ -357,6 +383,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       resumeSession,
       removeAccount,
       partialRefreshSession,
+      createEphemeralAgent,
     }),
     [
       createAccount,
@@ -366,6 +393,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
       resumeSession,
       removeAccount,
       partialRefreshSession,
+      createEphemeralAgent,
     ],
   )
 
