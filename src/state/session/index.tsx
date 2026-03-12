@@ -1,5 +1,6 @@
 import {
   createContext,
+  type PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -105,7 +106,7 @@ class SessionStore {
   }
 }
 
-export function Provider({children}: React.PropsWithChildren<{}>) {
+export function Provider({children}: PropsWithChildren<{}>) {
   const ax = useAnalyticsBase()
   const cancelPendingTask = useOneTaskAtATime()
   const [store] = useState(() => new SessionStore())
@@ -293,7 +294,7 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     })
   }, [store, state, cancelPendingTask])
 
-  const createEphemeralAgent = React.useCallback<
+  const createEphemeralAgent = useCallback<
     SessionApiContext['createEphemeralAgent']
   >(
     async storedAccount => {

@@ -1,4 +1,4 @@
-import {type JSX, useCallback, useMemo, useState} from 'react'
+import {type JSX, type MouseEvent, useCallback, useMemo, useState} from 'react'
 import {StyleSheet, View} from 'react-native'
 import {type AppBskyActorDefs} from '@atproto/api'
 import {msg, plural} from '@lingui/core/macro'
@@ -309,7 +309,7 @@ function SwitcherMenuProfileLink() {
           currentAccount?.handle
       : isTab(currentRouteInfo.name, pathName)
   const onProfilePress = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    (e: MouseEvent<HTMLAnchorElement>) => {
       if (e.ctrlKey || e.metaKey || e.altKey) {
         return
       }
@@ -419,7 +419,7 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
       : isTab(currentRouteInfo.name, pathName)
   const navigation = useNavigation<NavigationProp>()
   const onPressWrapped = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    (e: MouseEvent<HTMLAnchorElement>) => {
       if (e.ctrlKey || e.metaKey || e.altKey) {
         return
       }
