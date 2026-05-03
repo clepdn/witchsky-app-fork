@@ -16,7 +16,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: yarn
+
+      - name: 🔧 Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: 🪛 Setup jq
         uses: dcarbone/install-jq-action@v2
@@ -31,10 +33,10 @@ jobs:
           version: 1.16.2
 
       - name: ⚙️ Install JS dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: 🔤 Compile translations
-        run: yarn intl:build
+        run: pnpm intl:build
 
       - name: ✏️ Write environment variables
         run: |
