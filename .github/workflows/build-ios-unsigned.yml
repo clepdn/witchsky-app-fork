@@ -32,6 +32,10 @@ jobs:
         with:
           version: 1.16.2
 
+      - name: 🔧 Shim yarn → pnpm (postinstall-postinstall compat)
+        run: |
+          sudo sh -c 'printf "#!/bin/sh\nexec pnpm \"\$@\"\n" > /usr/local/bin/yarn && chmod +x /usr/local/bin/yarn'
+
       - name: ⚙️ Install JS dependencies
         run: pnpm install --frozen-lockfile
 
